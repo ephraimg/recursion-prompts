@@ -416,11 +416,16 @@ var nthFibo = function(n) {
 // var words = ['i', 'am', 'learning', 'recursion'];
 // capitalizedWords(words); // ['I', 'AM', 'LEARNING', 'RECURSION']
 var capitalizeWords = function(array) {
+	if (array.length === 0) { return array; }
+	return [array[0].toUpperCase()].concat(capitalizeWords(array.slice(1)));
 };
 
 // 28. Given an array of strings, capitalize the first letter of each index.
 // capitalizeFirst(['car','poop','banana']); // ['Car','Poop','Banana']
 var capitalizeFirst = function(array) {
+	if (array.length === 0) { return array; }
+	var newWord = array[0][0].toUpperCase() + array[0].slice(1);
+	return [newWord].concat(capitalizeFirst(array.slice(1)));	
 };
 
 // 29. Return the sum of all even numbers in an object containing nested objects.
@@ -433,11 +438,26 @@ var capitalizeFirst = function(array) {
 // };
 // nestedEvenSum(obj1); // 10
 var nestedEvenSum = function(obj) {
+	var total = 0;
+	for (key in obj) {
+		if (typeof obj[key] === 'number' && obj[key] % 2 === 0) {
+			total += obj[key]; 
+		} else if (typeof obj[key] === 'object') {
+			total += nestedEvenSum(obj[key]);
+		}
+	}
+	return total;
 };
 
 // 30. Flatten an array containing nested arrays.
 // flatten([1,[2],[3,[[4]]],5]); // [1,2,3,4,5]
 var flatten = function(array) {
+	if (array.length === 0) { return array; }
+	if (!Array.isArray(array[0])) {
+		return [array[0]].concat(flatten(array.slice(1)));
+	} else {
+		return flatten(array[0]).concat(flatten(array.slice(1)));
+	}
 };
 
 // 31. Given a string, return an object containing tallies of each letter.
@@ -464,6 +484,9 @@ var compress = function(list) {
 // itself.
 // augmentElements([[],[3],[7]], 5); // [[5],[3,5],[7,5]]
 var augmentElements = function(array, aug) {
+	var aug0 = array[0].concat(aug);
+	if (array.length === 1) { return [aug0]; }
+	return [aug0].concat(augmentElements(array.slice(1), aug));
 };
 
 // 34. Reduce a series of zeroes to a single 0.
@@ -480,16 +503,40 @@ var minimizeZeroes = function(array) {
 // alternateSign([2,7,8,3,1,4]) // [2,-7,8,-3,1,-4]
 // alternateSign([-2,-7,8,3,-1,4]) // [2,-7,8,-3,1,-4]
 var alternateSign = function(array) {
+	if (array.length === 0) { return array; }
+	if (array.length === 1) { return [Math.abs(array[0])]; }
+	var new2 = [Math.abs(array[0]), -1 * Math.abs(array[1])];
+	return new2.concat(alternateSign(array.slice(2)));
 };
 
 // 36. Given a string, return a string with digits converted to their word equivalent.
 // Assume all numbers are single digits (less than 10).
 // numToText("I have 5 dogs and 6 ponies"); // "I have five dogs and six ponies"
 var numToText = function(str) {
+	var trans = {
+		'1': 'one', '2': 'two', '3': 'three', '4': 'four',
+		'5': 'five', '6': 'six', '7': 'seven', '8': 'eight',
+		'9': 'nine', '0': 'zero'
+	}
+	if (str.length === 0) { return str }
+	if (trans[str[0]] !== undefined) {
+		return trans[str[0]].concat(numToText(str.slice(1)));
+	} else {
+		return str[0].concat(numToText(str.slice(1)));
+	}
 };
 
 // 37. Return the number of times a tag occurs in the DOM.
 var tagCount = function(tag, node) {
+	var tagTotal = 0;
+	var node = node || document.body;
+	if (node.nodeType != Node.TEXT_NODE) {
+		if (node.tagName === tag.toUpperCase()) { tagTotal++; }
+	}
+	if (node.hasChildNodes()) {
+		node.childNodes.forEach(child => tagTotal += tagCount(tag, child));
+	}
+	return tagTotal;
 };
 
 // 38. Write a function for binary search.
@@ -497,6 +544,17 @@ var tagCount = function(tag, node) {
 // binarySearch(array, 5) // 5
 // https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search
 var binarySearch = function(array, target, min, max) {
+  var max = array.length;
+	if (target < array[0] || target > array[max - 1]) { return null; }
+  var mid = Math.floor(max / 2);
+  if (array[mid] === target) { return mid; }
+  if (max <= 1) { return null; }
+  if (array[mid] < target) { 
+  	var recurseResult = binarySearch(array.slice(mid), target);
+  	return recurseResult === null ? null : mid + recurseResult;
+  } else {
+  	return binarySearch(array.slice(0, mid), target);
+  }
 };
 
 // 39. Write a merge sort function.
